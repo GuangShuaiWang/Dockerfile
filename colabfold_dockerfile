@@ -1,0 +1,32 @@
+FROM nvidia/cuda:11.3.1-cudnn8-devel-ubuntu18.04
+
+# metainformation
+LABEL org.opencontainers.image.version = "1.0.1"
+LABEL org.opencontainers.image.authors = "wangguangshuai"
+
+
+
+RUN apt-key del 7fa2af80
+RUN apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/7fa2af80.pub
+RUN apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/3bf863cc.pub
+
+RUN apt-get update && apt-get install -y wget libxml2 cuda-minimal-build-11-3 libcusparse-dev-11-3 libcublas-dev-11-3 libcusolver-dev-11-3 git
+
+cat
+ENV http_proxy="http://10.1.171.214:3129"
+ENV https_proxy="http://10.1.171.214:3129"
+RUN wget -P /tmp \
+    "https://github.com/conda-forge/miniforge/releases/download/23.3.1-1/Miniforge3-Linux-x86_64.sh" \
+    && bash /tmp/Miniforge3-Linux-x86_64.sh -b -p /opt/conda \
+    && rm /tmp/Miniforge3-Linux-x86_64.sh
+
+# COPY Miniconda3-latest-Linux-x86_64.sh /tmp/Miniconda3-latest-Linux-x86_64.sh
+# RUN bash /tmp/Miniconda3-latest-Linux-x86_64.sh -b -p /opt/conda \
+#     && rm /tmp/Miniconda3-latest-Linux-x86_64.sh
+ENV PATH /opt/conda/bin:$PATH
+
+RUN pip install "colabfold[alphafold] @ git+https://github.com/sokrypton/ColabFold"
+RUN pip install -q "jax[cuda]>=0.3.8,<0.4" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
+RUN conda install -c conda-forge -c bioconda mmseqs2
+RUN echo "source activate base" >> ~/.bashrc
+CMD ["/bin/bash"]
