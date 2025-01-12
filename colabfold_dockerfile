@@ -11,7 +11,8 @@ RUN apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/
 RUN apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/3bf863cc.pub
 
 RUN apt-get update && apt-get install -y wget libxml2 cuda-minimal-build-11-3 libcusparse-dev-11-3 libcublas-dev-11-3 libcusolver-dev-11-3 git
-
+RUN apt install aria2
+RUN apt install -y tmux rsync
 
 RUN wget -P /tmp \
     "https://github.com/conda-forge/miniforge/releases/download/23.3.1-1/Miniforge3-Linux-x86_64.sh" \
@@ -22,8 +23,8 @@ ENV PATH /opt/conda/bin:$PATH
 
 RUN pip install "colabfold[alphafold] @ git+https://github.com/sokrypton/ColabFold"
 RUN pip install -q "jax[cuda]>=0.3.8,<0.4" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
-RUN wget https://mmseqs.com/latest/mmseqs-linux-gpu.tar.gz
-RUN tar xvzf mmseqs-linux-*.tar.gz
-RUN export PATH=$(pwd)/mmseqs/bin/:$PATH
+RUN mkdir -p /opt/mmseqs \
+    && wget -qO- https://mmseqs.com/latest/mmseqs-linux-gpu.tar.gz | tar -xz -C /opt/mmseqs
+ENV PATH="/opt/mmseqs/bin:$PATH"
 RUN echo "source activate base" >> ~/.bashrc
 CMD ["/bin/bash"]
