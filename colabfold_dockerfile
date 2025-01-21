@@ -23,8 +23,7 @@ ENV PATH /opt/conda/bin:$PATH
 
 RUN pip install "colabfold[alphafold] @ git+https://github.com/sokrypton/ColabFold"
 RUN pip install -q "jax[cuda]>=0.3.8,<0.4" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
-RUN mkdir -p /opt/mmseqs \
-    && wget -qO- https://mmseqs.com/latest/mmseqs-linux-gpu.tar.gz | tar -xz -C /opt/mmseqs
+RUN wget -qO- https://mmseqs.com/latest/mmseqs-linux-gpu.tar.gz | tar -xz -C /opt
 ENV PATH="/opt/mmseqs/bin:$PATH"
 RUN echo "source activate base" >> ~/.bashrc
 CMD ["/bin/bash"]
